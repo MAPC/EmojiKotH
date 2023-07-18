@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/emojikoth/static/css/main.ec7bd41b.css",
-    "main.js": "/emojikoth/static/js/main.a489194e.js",
-    "static/js/787.75373ca4.chunk.js": "/emojikoth/static/js/787.75373ca4.chunk.js",
-    "index.html": "/emojikoth/index.html",
-    "main.ec7bd41b.css.map": "/emojikoth/static/css/main.ec7bd41b.css.map",
-    "main.a489194e.js.map": "/emojikoth/static/js/main.a489194e.js.map",
-    "787.75373ca4.chunk.js.map": "/emojikoth/static/js/787.75373ca4.chunk.js.map"
+    "main.css": "/EmojiKotH/static/css/main.ec7bd41b.css",
+    "main.js": "/EmojiKotH/static/js/main.0868d05c.js",
+    "static/js/787.75373ca4.chunk.js": "/EmojiKotH/static/js/787.75373ca4.chunk.js",
+    "index.html": "/EmojiKotH/index.html",
+    "main.ec7bd41b.css.map": "/EmojiKotH/static/css/main.ec7bd41b.css.map",
+    "main.0868d05c.js.map": "/EmojiKotH/static/js/main.0868d05c.js.map",
+    "787.75373ca4.chunk.js.map": "/EmojiKotH/static/js/787.75373ca4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ec7bd41b.css",
-    "static/js/main.a489194e.js"
+    "static/js/main.0868d05c.js"
   ]
 }
