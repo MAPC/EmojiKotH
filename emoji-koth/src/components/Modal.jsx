@@ -27,15 +27,23 @@ function EmojiModal(muni) {
       formDataObj = Object.fromEntries(formData.entries());
 
     let upperName = [];
-    currentEmoji["names"][1].split(" ").forEach((element) => {
-      upperName.push(element[0].toUpperCase() + element.slice(1, element.length));
-    });
+
+    if (currentEmoji["names"].length > 1) {
+      currentEmoji["names"][1].split(" ").forEach((element) => {
+        upperName.push(element[0].toUpperCase() + element.slice(1, element.length));
+      });
+    } else if (currentEmoji["names"].length <= 1) {
+      upperName.push(
+        currentEmoji["names"][0][0].toUpperCase() + currentEmoji["names"][0].slice(1, currentEmoji["names"][0].length)
+      );
+    }
+    console.log(upperName);
     let data = {
       records: [
         {
           fields: {
             Municipality: muni["muni"][0] + muni["muni"].slice(1, muni["muni"].length).toLowerCase(),
-            Emoji: upperName.join(""),
+            Emoji: currentEmoji["emoji"] + upperName.join(" "),
             Explanation: formDataObj.explanation,
             State: "Massachusetts",
             Lat: null,
@@ -51,17 +59,15 @@ function EmojiModal(muni) {
 
     var base = new Airtable(auth).base("app7invLG3BPCqc6o");
 
-    console.log(base("Table 1").getField("Emoji"));
-
-    // base("Table 1").create(data["records"], function (err, records) {
-    //   if (err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   records.forEach(function (record) {
-    //     console.log(record.getId());
-    //   });
-    // });
+    base("Table 1").create(data["records"], function (err, records) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      records.forEach(function (record) {
+        console.log(record.getId());
+      });
+    });
 
     setToggleModal(false);
   };

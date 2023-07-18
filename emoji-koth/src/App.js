@@ -15,12 +15,9 @@ function App() {
     pointer-events: auto;
     width: 100vw;
     height: 100vh;
-    /* border-color: rgb(14, 21, 35);
-    border-style: solid;
-    border-width: 3.75rem 2rem 2rem; */
 
     --border-size: 1.5rem;
-    --border-size-wide: 3rem;
+    --border-size-wide: 2.25rem;
     clip-path: polygon(
       evenodd,
       0 0,
@@ -34,33 +31,34 @@ function App() {
       var(--border-size) calc(100% - var(--border-size)),
       var(--border-size) var(--border-size-wide)
     );
-    /*
-    the border-color can now be set through the background property
-    which means we could even have corner-gradients borders
-  */
-    background: lime;
+
+    /* background: rgb(14, 21, 35); */
+    background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
   `;
 
   const TitleDiv = styled.div`
     position: absolute;
-    left: 3rem;
-    top: 0.25rem;
-    width: 12rem;
+    left: 1.5rem;
+    top: 0rem;
+    width: 30rem;
     text-align: left;
+    color: rgb(39, 82, 162);
   `;
 
-  const Titleh1 = styled.h2`
+  const Titleh1 = styled.h3`
     margin-bottom: 0.5rem;
   `;
 
-  const Titleh4 = styled.h4`
-    color: floralwhite;
+  const Titleh4 = styled.h3`
+    position: absolute;
+    top: 0.15rem;
+    left: 10rem;
     font-weight: bold;
   `;
 
   return (
     <div className="App">
-      <header className="App-header" style={{ backgroundColor: "rgb(19 78 120)" }}>
+      <header className="App-header" style={{ backgroundColor: "rgb(32,59,77)" }}>
         <BorderDiv />
 
         <TitleDiv>
