@@ -191,7 +191,7 @@ function EmojiMap() {
     .scale(56000)
     .rotate([71.057, 0])
     .center([-0.021, 42.378])
-    .translate([windowDimensions["width"] / 2.95, windowDimensions["height"] / 2]);
+    .translate([windowDimensions["width"] / 2.5, windowDimensions["height"] / 2]);
 
   const renderMap = () => {
     const emojiMap = d3.select("svg");
