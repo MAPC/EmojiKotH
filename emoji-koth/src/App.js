@@ -8,6 +8,7 @@ export const ModalContext = createContext();
 
 function App() {
   const [toggleModal, setToggleModal] = useState(false);
+  const [mappedEmojis, setMappedEmojis] = useState({});
   const [muni, setMuni] = useState("N/A");
 
   const BorderDiv = styled.div`
@@ -71,9 +72,11 @@ function App() {
             setToggleModal,
             muni,
             setMuni,
+            mappedEmojis,
+            setMappedEmojis,
           }}
         >
-          <EmojiModal muni={muni} />
+          <EmojiModal />
           <EmojiMap />
         </ModalContext.Provider>
       </header>

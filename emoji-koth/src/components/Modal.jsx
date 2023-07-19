@@ -9,8 +9,8 @@ import styled from "styled-components";
 import { ModalContext } from "../App";
 import * as Airtable from "airtable";
 
-function EmojiModal(muni) {
-  const { toggleModal, setToggleModal } = useContext(ModalContext);
+function EmojiModal() {
+  const { toggleModal, setToggleModal, muni, setMuni, mappedEmojis, setMappedEmojis } = useContext(ModalContext);
   const [toggleEmoji, setToggleEmoji] = useState(true);
   const [currentEmoji, setCurrentEmoji] = useState("😃");
 
@@ -84,7 +84,21 @@ function EmojiModal(muni) {
 
   const EmojiModalDiv = styled(Modal)`
     height: 100vh;
+    width: 75vw;
+    margin-left: 2rem;
   `;
+
+  console.log(muni[0] + muni.slice(1, muni.length).toLowerCase());
+  console.log(
+    mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+      ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
+      : "N/A"
+  );
+  console.log(
+    mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+      ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
+      : "❔"
+  );
 
   return (
     <EmojiModalDiv
@@ -96,7 +110,7 @@ function EmojiModal(muni) {
       scrollable={true}
     >
       <Modal.Header closeButton>
-        <Modal.Title>{muni["muni"]}'S EMOJI</Modal.Title>
+        <Modal.Title>{muni}'S EMOJI</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit} className="pt-3">
@@ -104,10 +118,18 @@ function EmojiModal(muni) {
             <Form.Label className="mb-1 text-start modal-form-label">Emoji: </Form.Label>
             <Form.Control
               type="text"
-              placeholder={currentEmoji["emoji"]}
+              placeholder={
+                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
+                  : "❔"
+              }
               className="mb-3"
               name="emoji"
-              defaultValue={currentEmoji["emoji"]}
+              defaultValue={
+                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
+                  : "❔"
+              }
             />
             <EmojiButton onClick={handleToggleEmoji} type="button">
               Choose an Emoji
@@ -122,6 +144,11 @@ function EmojiModal(muni) {
               placeholder={"Explain why you chose that emoji"}
               className="mb-3"
               name="explanation"
+              defaultValue={
+                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
+                  : "N/A"
+              }
             />
           </Form.Group>
           <Button

@@ -21,9 +21,8 @@ function getWindowDimensions() {
 
 function EmojiMap() {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-  const [mappedEmojis, setMappedEmojis] = useState({});
   const [currentMuni, setCurrentMuni] = useState("N/A");
-  const { toggleModal, setToggleModal, muni, setMuni } = useContext(ModalContext);
+  const { toggleModal, setToggleModal, muni, setMuni, mappedEmojis, setMappedEmojis } = useContext(ModalContext);
 
   useEffect(() => {
     renderMap();
@@ -45,7 +44,7 @@ function EmojiMap() {
   `;
 
   const InstructionsDiv = styled.div`
-    width: 17rem;
+    width: 18.25rem;
     height: 14rem;
     background-color: rgb(243 248 255);
     position: absolute;
@@ -69,17 +68,19 @@ function EmojiMap() {
   `;
 
   const TooltipDiv = styled.div`
-    width: 17rem;
+    width: 18.25rem;
     height: 7rem;
     background-color: rgb(243 248 255);
     position: absolute;
-    right: 3rem;
     bottom: 3rem;
     border-radius: 0.25rem;
     color: rgb(39, 82, 162);
+    right: ${(props) => (props.width < 505 ? "4.5rem" : "3rem")};
     padding: 1.5rem 1.5rem;
     font-weight: bold;
     text-align: left;
+    word-break: break-all;
+    text-wrap: nowrap;
   `;
 
   const munis = new Set([
@@ -188,10 +189,23 @@ function EmojiMap() {
 
   const projection = d3
     .geoAlbers()
-    .scale(56000)
+    .scale(
+      windowDimensions["height"] > 1300 && windowDimensions["width"] > 1400
+        ? 68000
+        : windowDimensions["width"] > 1200 && windowDimensions["height"] > 780
+        ? 54000
+        : windowDimensions["width"] > 1000 && windowDimensions["height"] > 700
+        ? 45000
+        : windowDimensions["width"] > 650 && windowDimensions["height"] > 700
+        ? 35000
+        : 25000
+    )
     .rotate([71.057, 0])
     .center([-0.021, 42.378])
-    .translate([windowDimensions["width"] / 2.5, windowDimensions["height"] / 2]);
+    .translate([
+      windowDimensions["width"] < 505 ? windowDimensions["width"] / 1.95 : windowDimensions["width"] / 2.5,
+      windowDimensions["height"] / 2,
+    ]);
 
   const renderMap = () => {
     const emojiMap = d3.select("svg");
@@ -289,7 +303,6 @@ function EmojiMap() {
           }
         }
       );
-    console.log(mappedEmojis);
 
     const emojiMapPoints = d3.select("svg");
 
@@ -332,24 +345,34 @@ function EmojiMap() {
   return (
     <Mapsize>
       <svg
-        style={{ overflow: "visible" }}
+        style={{ overflow: "visible", disply: "block", margin: "auto" }}
         className={"emoji-map"}
         preserveAspectRatio={"xMinYMin slice"}
         viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
       ></svg>
 
-      <InstructionsDiv>
-        INSTRUCTIONS
-        <InstructionsUl>
-          <InstructionsLi>See MAPC Munis' Emojis!</InstructionsLi>
-          <InstructionsLi>Select Your Muni</InstructionsLi>
-          <InstructionsLi>Make your Emoji the King of the Muni!</InstructionsLi>
-        </InstructionsUl>
-      </InstructionsDiv>
+      {windowDimensions["width"] > 650 && (
+        <InstructionsDiv>
+          INSTRUCTIONS
+          <InstructionsUl>
+            <InstructionsLi>See MAPC Munis' Emojis!</InstructionsLi>
+            <InstructionsLi>Select Your Muni</InstructionsLi>
+            <InstructionsLi>Make your Emoji the King of the Muni!</InstructionsLi>
+          </InstructionsUl>
+        </InstructionsDiv>
+      )}
 
-      <TooltipDiv>
+      <TooltipDiv width={windowDimensions["width"]}>
         <h6 style={{ marginBottom: 4 }}>MUNICIPALITY 👑:</h6>
-        <h2>{currentMuni + (mappedEmojis[currentMuni] !== undefined ? mappedEmojis[currentMuni] : "")}</h2>
+        <h2>
+          {currentMuni +
+            " " +
+            (mappedEmojis[currentMuni[0] + currentMuni.slice(1, currentMuni.length).toLowerCase()] !== undefined
+              ? mappedEmojis[currentMuni[0] + currentMuni.slice(1, currentMuni.length).toLowerCase()][0].match(
+                  /\p{Emoji}+/gu
+                )[0]
+              : "❔")}
+        </h2>
       </TooltipDiv>
     </Mapsize>
   );
