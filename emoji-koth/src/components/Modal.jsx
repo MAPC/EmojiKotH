@@ -8,8 +8,8 @@ import axios from "axios";
 import styled from "styled-components";
 import { ModalContext } from "../App";
 import * as Airtable from "airtable";
-import { tsParticles } from "https://cdn.jsdelivr.net/npm/tsparticles-engine/+esm";
-import { loadFull } from "https://cdn.jsdelivr.net/npm/tsparticles/+esm";
+import { tsParticles } from "tsparticles-engine";
+import { loadFull } from "tsparticles";
 
 function EmojiModal() {
   const {
