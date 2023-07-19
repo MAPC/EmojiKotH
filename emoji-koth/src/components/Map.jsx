@@ -11,32 +11,102 @@ import pointData from "../data/MA_Town_Halls.json";
 
 import * as Airtable from "airtable";
 
-function getWindowDimensions() {
-  const { innerWidth: width, innerHeight: height } = window;
-  return {
-    width,
-    height,
-  };
-}
-
 function EmojiMap() {
-  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-  const [currentMuni, setCurrentMuni] = useState("N/A");
-  const { toggleModal, setToggleModal, muni, setMuni, mappedEmojis, setMappedEmojis } = useContext(ModalContext);
+  const {
+    toggleModal,
+    setToggleModal,
+    muni,
+    setMuni,
+    mappedEmojis,
+    setMappedEmojis,
+    windowDimensions,
+    setWindowDimensions,
+    munis,
+    setMunis,
+  } = useContext(ModalContext);
 
-  useEffect(() => {
-    renderMap();
-    function handleResize() {
-      setWindowDimensions(getWindowDimensions());
-    }
-    renderEmojis();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [toggleModal, windowDimensions, currentMuni]);
+  const projection = d3
+    .geoAlbers()
+    .scale(
+      windowDimensions["height"] > 1300 && windowDimensions["width"] > 1400
+        ? 68000
+        : windowDimensions["width"] > 1200 && windowDimensions["height"] > 780
+        ? 54000
+        : windowDimensions["width"] > 1000 && windowDimensions["height"] > 600
+        ? 45000
+        : windowDimensions["width"] > 650 && windowDimensions["height"] > 500
+        ? 35000
+        : 27000
+    )
+    .rotate([71.057, 0])
+    .center([-0.021, 42.378])
+    .translate([
+      windowDimensions["width"] < 505 ? windowDimensions["width"] / 1.95 : windowDimensions["width"] / 2.5,
+      windowDimensions["height"] / 2,
+    ]);
 
   const aspect = windowDimensions["width"] / windowDimensions["height"];
   const adjustedHeight = Math.ceil(windowDimensions["width"] / aspect);
+
+  const renderMap = () => {
+    const emojiMap = d3.select("svg");
+    const path = d3.geoPath().projection(projection);
+    // emojiMap.append("g").attr("class", "test");
+    emojiMap
+      .append("g")
+      .attr("class", "munis")
+      .selectAll("path")
+      .data(geoData["features"])
+      .enter()
+      .append("path")
+      .attr("fill", (d) => {
+        if (munis.has(d.properties.town[0] + d.properties.town.slice(1, d.properties.town.length).toLowerCase())) {
+          return "#bad7f7";
+        } else {
+          return "rgb(32,59,77)";
+        }
+      })
+      .attr("stroke", "#5064b7")
+      .attr("d", path)
+      .on("mouseover", function (d) {
+        if (
+          munis.has(
+            d.target.__data__.properties.town[0].toUpperCase() +
+              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
+          )
+        ) {
+          setMuni(d.target.__data__.properties.town);
+          d3.select(this).attr("fill", "rgb(255,206,134)");
+        }
+      })
+      .on("click", (d) => {
+        if (
+          munis.has(
+            d.target.__data__.properties.town[0].toUpperCase() +
+              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
+          )
+        ) {
+          setMuni(String(d.target.__data__.properties.town));
+          setToggleModal(true);
+        }
+      })
+      .on("mouseout", function (d) {
+        if (
+          munis.has(
+            d.target.__data__.properties.town[0].toUpperCase() +
+              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
+          )
+        ) {
+          setMuni("N/A");
+          d3.select(this).attr("fill", "#bad7f7");
+        }
+      });
+  };
+
+  useEffect(() => {
+    renderMap();
+    renderEmojis();
+  }, [toggleModal, muni, windowDimensions]);
 
   const Mapsize = styled.div`
     width: 100vw;
@@ -83,185 +153,6 @@ function EmojiMap() {
     text-wrap: nowrap;
   `;
 
-  const munis = new Set([
-    "Acton",
-    "Arlington",
-    "Ashland",
-    "Bedford",
-    "Bellingham",
-    "Belmont",
-    "Beverly",
-    "Bolton",
-    "Boston",
-    "Boxborough",
-    "Braintree",
-    "Brookline",
-    "Burlington",
-    "Cambridge",
-    "Canton",
-    "Carlisle",
-    "Chelsea",
-    "Cohasset",
-    "Concord",
-    "Danvers",
-    "Dedham",
-    "Dover",
-    "Duxbury",
-    "Essex",
-    "Everett",
-    "Foxborough",
-    "Framingham",
-    "Franklin",
-    "Gloucester",
-    "Hamilton",
-    "Hanover",
-    "Hingham",
-    "Holbrook",
-    "Holliston",
-    "Hopkinton",
-    "Hudson",
-    "Hull",
-    "Ipswich",
-    "Lexington",
-    "Lincoln",
-    "Littleton",
-    "Lynn",
-    "Lynnfield",
-    "Malden",
-    "Manchester",
-    "Marblehead",
-    "Marlborough",
-    "Marshfield",
-    "Maynard",
-    "Medfield",
-    "Medford",
-    "Medway",
-    "Melrose",
-    "Middleton",
-    "Milford",
-    "Millis",
-    "Milton",
-    "Nahant",
-    "Natick",
-    "Needham",
-    "Newton",
-    "Norfolk",
-    "North Reading",
-    "Norwell",
-    "Norwood",
-    "Peabody",
-    "Pembroke",
-    "Quincy",
-    "Randolph",
-    "Reading",
-    "Revere",
-    "Rockland",
-    "Rockport",
-    "Salem",
-    "Saugus",
-    "Scituate",
-    "Sharon",
-    "Sherborn",
-    "Somerville",
-    "Southborough",
-    "Stoneham",
-    "Stoughton",
-    "Stow",
-    "Sudbury",
-    "Swampscott",
-    "Topsfield",
-    "Wakefield",
-    "Walpole",
-    "Waltham",
-    "Watertown",
-    "Wayland",
-    "Wellesley",
-    "Wenham",
-    "Weston",
-    "Westwood",
-    "Weymouth",
-    "Wilmington",
-    "Winchester",
-    "Winthrop",
-    "Woburn",
-    "Wrentham",
-  ]);
-
-  const projection = d3
-    .geoAlbers()
-    .scale(
-      windowDimensions["height"] > 1300 && windowDimensions["width"] > 1400
-        ? 68000
-        : windowDimensions["width"] > 1200 && windowDimensions["height"] > 780
-        ? 54000
-        : windowDimensions["width"] > 1000 && windowDimensions["height"] > 700
-        ? 45000
-        : windowDimensions["width"] > 650 && windowDimensions["height"] > 700
-        ? 35000
-        : 25000
-    )
-    .rotate([71.057, 0])
-    .center([-0.021, 42.378])
-    .translate([
-      windowDimensions["width"] < 505 ? windowDimensions["width"] / 1.95 : windowDimensions["width"] / 2.5,
-      windowDimensions["height"] / 2,
-    ]);
-
-  const renderMap = () => {
-    const emojiMap = d3.select("svg");
-    const path = d3.geoPath().projection(projection);
-    // emojiMap.append("g").attr("class", "test");
-    emojiMap
-      .append("g")
-      .attr("class", "munis")
-      .selectAll("path")
-      .data(geoData["features"])
-      .enter()
-      .append("path")
-      .attr("fill", (d) => {
-        if (munis.has(d.properties.town[0] + d.properties.town.slice(1, d.properties.town.length).toLowerCase())) {
-          return "#bad7f7";
-        } else {
-          return "rgb(32,59,77)";
-        }
-      })
-      .attr("stroke", "#5064b7")
-      .attr("d", path)
-      .on("mouseover", function (d) {
-        if (
-          munis.has(
-            d.target.__data__.properties.town[0].toUpperCase() +
-              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
-          )
-        ) {
-          setCurrentMuni(d.target.__data__.properties.town);
-          d3.select(this).attr("fill", "rgb(255,206,134)");
-        }
-      })
-      .on("click", (d) => {
-        if (
-          munis.has(
-            d.target.__data__.properties.town[0].toUpperCase() +
-              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
-          )
-        ) {
-          setMuni(String(d.target.__data__.properties.town));
-          setToggleModal(true);
-        }
-      })
-      .on("mouseout", function (d) {
-        if (
-          munis.has(
-            d.target.__data__.properties.town[0].toUpperCase() +
-              d.target.__data__.properties.town.slice(1, d.target.__data__.properties.town.length).toLowerCase()
-          )
-        ) {
-          setCurrentMuni("N/A");
-          d3.select(this).attr("fill", "#bad7f7");
-        }
-      });
-  };
-
   const renderEmojis = () => {
     const auth_token = {
       apiKey: "patKlQHXCDpnAOJ2p.53d3f8636793a87b7967e0560734bc42213551cab6625fda7343e2c01545e177",
@@ -304,6 +195,8 @@ function EmojiMap() {
         }
       );
 
+    setMappedEmojis(mappedEmojis);
+
     const emojiMapPoints = d3.select("svg");
 
     const filteredMunicipalities = pointData.features.filter((municipality) =>
@@ -323,7 +216,9 @@ function EmojiMap() {
       .attr("class", "muni-site")
       .style("pointer-events", "none")
       .text(function (d) {
-        // console.log(mappedEmojis);
+        console.log(mappedEmojis);
+        console.log(d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase());
+        console.log(mappedEmojis["Salem"]);
         if (
           mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
           undefined
@@ -338,19 +233,10 @@ function EmojiMap() {
       .attr("id", (d) => `muni-pt-${d.properties.muni}`)
       .attr("x", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0])
       .attr("y", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1]);
-
-    setMappedEmojis(mappedEmojis);
   };
 
   return (
     <Mapsize>
-      <svg
-        style={{ overflow: "visible", disply: "block", margin: "auto" }}
-        className={"emoji-map"}
-        preserveAspectRatio={"xMinYMin slice"}
-        viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
-      ></svg>
-
       {windowDimensions["width"] > 650 && (
         <InstructionsDiv>
           INSTRUCTIONS
@@ -362,15 +248,20 @@ function EmojiMap() {
         </InstructionsDiv>
       )}
 
+      <svg
+        style={{ overflow: "visible", disply: "block", margin: "auto" }}
+        className={"emoji-map"}
+        preserveAspectRatio={"xMinYMin slice"}
+        viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
+      ></svg>
+
       <TooltipDiv width={windowDimensions["width"]}>
         <h6 style={{ marginBottom: 4 }}>MUNICIPALITY 👑:</h6>
         <h2>
-          {currentMuni +
+          {muni +
             " " +
-            (mappedEmojis[currentMuni[0] + currentMuni.slice(1, currentMuni.length).toLowerCase()] !== undefined
-              ? mappedEmojis[currentMuni[0] + currentMuni.slice(1, currentMuni.length).toLowerCase()][0].match(
-                  /\p{Emoji}+/gu
-                )[0]
+            (mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+              ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
               : "❔")}
         </h2>
       </TooltipDiv>

@@ -1,21 +1,146 @@
 import EmojiMap from "./components/Map";
 import "./App.css";
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import EmojiModal from "./components/Modal";
 import styled from "styled-components";
+import * as d3 from "d3";
 
 export const ModalContext = createContext();
 
+function getWindowDimensions() {
+  const { innerWidth: width, innerHeight: height } = window;
+  return {
+    width,
+    height,
+  };
+}
+
 function App() {
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
   const [toggleModal, setToggleModal] = useState(false);
   const [mappedEmojis, setMappedEmojis] = useState({});
   const [muni, setMuni] = useState("N/A");
+  const [munis, setMunis] = useState(
+    new Set([
+      "Acton",
+      "Arlington",
+      "Ashland",
+      "Bedford",
+      "Bellingham",
+      "Belmont",
+      "Beverly",
+      "Bolton",
+      "Boston",
+      "Boxborough",
+      "Braintree",
+      "Brookline",
+      "Burlington",
+      "Cambridge",
+      "Canton",
+      "Carlisle",
+      "Chelsea",
+      "Cohasset",
+      "Concord",
+      "Danvers",
+      "Dedham",
+      "Dover",
+      "Duxbury",
+      "Essex",
+      "Everett",
+      "Foxborough",
+      "Framingham",
+      "Franklin",
+      "Gloucester",
+      "Hamilton",
+      "Hanover",
+      "Hingham",
+      "Holbrook",
+      "Holliston",
+      "Hopkinton",
+      "Hudson",
+      "Hull",
+      "Ipswich",
+      "Lexington",
+      "Lincoln",
+      "Littleton",
+      "Lynn",
+      "Lynnfield",
+      "Malden",
+      "Manchester",
+      "Marblehead",
+      "Marlborough",
+      "Marshfield",
+      "Maynard",
+      "Medfield",
+      "Medford",
+      "Medway",
+      "Melrose",
+      "Middleton",
+      "Milford",
+      "Millis",
+      "Milton",
+      "Nahant",
+      "Natick",
+      "Needham",
+      "Newton",
+      "Norfolk",
+      "North Reading",
+      "Norwell",
+      "Norwood",
+      "Peabody",
+      "Pembroke",
+      "Quincy",
+      "Randolph",
+      "Reading",
+      "Revere",
+      "Rockland",
+      "Rockport",
+      "Salem",
+      "Saugus",
+      "Scituate",
+      "Sharon",
+      "Sherborn",
+      "Somerville",
+      "Southborough",
+      "Stoneham",
+      "Stoughton",
+      "Stow",
+      "Sudbury",
+      "Swampscott",
+      "Topsfield",
+      "Wakefield",
+      "Walpole",
+      "Waltham",
+      "Watertown",
+      "Wayland",
+      "Wellesley",
+      "Wenham",
+      "Weston",
+      "Westwood",
+      "Weymouth",
+      "Wilmington",
+      "Winchester",
+      "Winthrop",
+      "Woburn",
+      "Wrentham",
+    ])
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowDimensions(getWindowDimensions());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
 
   const BorderDiv = styled.div`
     position: absolute;
     pointer-events: auto;
     width: 100vw;
     height: 100vh;
+    top: 0;
 
     --border-size: 1.5rem;
     --border-size-wide: 2.25rem;
@@ -39,7 +164,7 @@ function App() {
 
   const TitleDiv = styled.div`
     position: absolute;
-    left: 1.5rem;
+    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
     top: 0rem;
     width: 30rem;
     text-align: left;
@@ -62,7 +187,7 @@ function App() {
       <header className="App-header" style={{ backgroundColor: "rgb(32,59,77)" }}>
         <BorderDiv />
 
-        <TitleDiv>
+        <TitleDiv width={windowDimensions["width"]}>
           <Titleh1>〽️🅰️🅿️🗜️</Titleh1>
           <Titleh4>MUNI EMOJI</Titleh4>
         </TitleDiv>
@@ -74,6 +199,10 @@ function App() {
             setMuni,
             mappedEmojis,
             setMappedEmojis,
+            windowDimensions,
+            setWindowDimensions,
+            munis,
+            setMunis,
           }}
         >
           <EmojiModal />

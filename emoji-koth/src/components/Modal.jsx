@@ -8,14 +8,178 @@ import axios from "axios";
 import styled from "styled-components";
 import { ModalContext } from "../App";
 import * as Airtable from "airtable";
+import { tsParticles } from "https://cdn.jsdelivr.net/npm/tsparticles-engine/+esm";
+import { loadFull } from "https://cdn.jsdelivr.net/npm/tsparticles/+esm";
 
 function EmojiModal() {
-  const { toggleModal, setToggleModal, muni, setMuni, mappedEmojis, setMappedEmojis } = useContext(ModalContext);
+  const {
+    toggleModal,
+    setToggleModal,
+    muni,
+    setMuni,
+    mappedEmojis,
+    setMappedEmojis,
+    windowDimensions,
+    setWindowDimensions,
+  } = useContext(ModalContext);
   const [toggleEmoji, setToggleEmoji] = useState(true);
-  const [currentEmoji, setCurrentEmoji] = useState("😃");
+  const [currentEmoji, setCurrentEmoji] = useState(undefined);
+
+  async function loadParticles(options) {
+    await loadFull(tsParticles);
+
+    await tsParticles.load(options);
+  }
+
+  const configs = {
+    duration: 4.5,
+    fullScreen: {
+      zIndex: 1,
+    },
+    emitters: [
+      {
+        position: {
+          x: 0,
+          y: 30,
+        },
+        rate: {
+          quantity: 3,
+          delay: 0.15,
+        },
+        particles: {
+          move: {
+            direction: "top-right",
+            outModes: {
+              top: "none",
+              left: "none",
+              default: "destroy",
+            },
+          },
+        },
+      },
+      {
+        position: {
+          x: 100,
+          y: 30,
+        },
+        rate: {
+          quantity: 3,
+          delay: 0.15,
+        },
+        particles: {
+          move: {
+            direction: "top-left",
+            outModes: {
+              top: "none",
+              right: "none",
+              default: "destroy",
+            },
+          },
+        },
+      },
+    ],
+    particles: {
+      color: {
+        value: ["#ffffff", "#FF0000"],
+      },
+      move: {
+        decay: 0.05,
+        direction: "top",
+        enable: true,
+        gravity: {
+          enable: true,
+        },
+        outModes: {
+          top: "none",
+          default: "destroy",
+        },
+        speed: {
+          min: 10,
+          max: 50,
+        },
+      },
+      number: {
+        value: 0,
+      },
+      opacity: {
+        value: 1,
+      },
+      rotate: {
+        value: {
+          min: 0,
+          max: 360,
+        },
+        direction: "random",
+        animation: {
+          enable: true,
+          speed: 30,
+        },
+      },
+      tilt: {
+        direction: "random",
+        enable: true,
+        value: {
+          min: 0,
+          max: 360,
+        },
+        animation: {
+          enable: true,
+          speed: 30,
+        },
+      },
+      size: {
+        value: {
+          min: 0,
+          max: 2,
+        },
+        animation: {
+          enable: true,
+          startValue: "min",
+          count: 1,
+          speed: 16,
+          sync: true,
+        },
+      },
+      roll: {
+        darken: {
+          enable: true,
+          value: 25,
+        },
+        enable: true,
+        speed: {
+          min: 5,
+          max: 15,
+        },
+      },
+      wobble: {
+        distance: 30,
+        enable: true,
+        speed: {
+          min: -7,
+          max: 7,
+        },
+      },
+      shape: {
+        type: "character",
+        options: {
+          character: {
+            fill: true,
+            font: "Verdana",
+            style: "",
+            weight: 400,
+            particles: {
+              size: {
+                value: 8,
+              },
+            },
+            value: ["🔥", "⭐", "🍀", "💥", "🦄", "⭐️", "💥", "🍵", "💸", "👑", "👑", "👑"],
+          },
+        },
+      },
+    },
+  };
 
   const handleEmoji = (event) => {
-    console.log(event);
     setCurrentEmoji(event);
   };
 
@@ -37,19 +201,19 @@ function EmojiModal() {
         currentEmoji["names"][0][0].toUpperCase() + currentEmoji["names"][0].slice(1, currentEmoji["names"][0].length)
       );
     }
-    console.log(upperName);
+
     let data = {
       records: [
         {
           fields: {
-            Municipality: muni["muni"][0] + muni["muni"].slice(1, muni["muni"].length).toLowerCase(),
+            Municipality: muni[0] + muni.slice(1, muni.length).toLowerCase(),
             Emoji: currentEmoji["emoji"] + upperName.join(" "),
             Explanation: formDataObj.explanation,
           },
         },
       ],
     };
-    console.log(data);
+
     const auth = {
       apiKey: "patKlQHXCDpnAOJ2p.53d3f8636793a87b7967e0560734bc42213551cab6625fda7343e2c01545e177",
     };
@@ -63,6 +227,8 @@ function EmojiModal() {
       }
       records.forEach(function (record) {
         console.log(record.getId());
+
+        loadParticles(configs);
       });
     });
 
@@ -84,26 +250,15 @@ function EmojiModal() {
 
   const EmojiModalDiv = styled(Modal)`
     height: 100vh;
-    width: 75vw;
-    margin-left: 2rem;
+    width: 100vw;
+    /* margin-left: 2rem; */
   `;
-
-  console.log(muni[0] + muni.slice(1, muni.length).toLowerCase());
-  console.log(
-    mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
-      ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
-      : "N/A"
-  );
-  console.log(
-    mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
-      ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
-      : "❔"
-  );
 
   return (
     <EmojiModalDiv
       show={toggleModal}
       onHide={() => {
+        setCurrentEmoji(undefined);
         setToggleModal(false);
       }}
       centered={true}
@@ -126,7 +281,9 @@ function EmojiModal() {
               className="mb-3"
               name="emoji"
               defaultValue={
-                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                currentEmoji !== undefined
+                  ? currentEmoji["emoji"]
+                  : mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
                   ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
                   : "❔"
               }
