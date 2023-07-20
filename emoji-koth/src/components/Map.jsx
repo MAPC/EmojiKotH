@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { ModalContext } from "../App";
 import geoData from "../data/ma-munis.json";
 import pointData from "../data/MA_Town_Halls.json";
+import glossIcon from "../assets/glossary-icon.svg";
 
 import * as Airtable from "airtable";
 import { Shake } from "reshake";
@@ -200,16 +201,15 @@ function EmojiMap() {
 
   const Titleh3 = styled.h3`
     position: absolute;
-    top: 0.15rem;
+    top: 0rem;
     left: 10rem;
     font-weight: bold;
   `;
 
   const LinkDiv = styled.div`
     position: absolute;
-    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
-    top: 0rem;
-    width: 30rem;
+    right: ${(props) => (props.width < 505 ? "3.25rem" : "3rem")};
+    top: -0.25rem;
     text-align: left;
     color: rgb(39, 82, 162);
   `;
@@ -306,9 +306,23 @@ function EmojiMap() {
 
       <BorderDiv />
       <TitleDiv width={windowDimensions["width"]}>
-        <Titleh1>〽️🅰️🅿️🗜️</Titleh1>
+        <a
+          href="https://www.mapc.org/our-work/expertise/data-services/"
+          style={{ textDecoration: "none" }}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Titleh1>〽️🅰️🅿️🗜️</Titleh1>
+        </a>
+
         <Titleh3>MUNI EMOJI</Titleh3>
       </TitleDiv>
+
+      <LinkDiv>
+        <a href="https://airtable.com/app7invLG3BPCqc6o/shrHyk37J5dzduzAn/tbltaZ0zK1spJ8rxr/viwRUrNgwdNd3NXTj?blocks=bippxztx8o21b0kzf">
+          <img src={glossIcon} style={{ width: "1.75rem" }} />
+        </a>
+      </LinkDiv>
 
       {windowDimensions["width"] > 650 && (
         <InstructionsDiv>

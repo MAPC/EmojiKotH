@@ -228,8 +228,6 @@ function EmojiModal() {
         return;
       }
       records.forEach(function (record) {
-        console.log(record.getId());
-
         loadParticles(configs);
         setMapShake(true);
       });
