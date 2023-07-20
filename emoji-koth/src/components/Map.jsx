@@ -10,6 +10,7 @@ import geoData from "../data/ma-munis.json";
 import pointData from "../data/MA_Town_Halls.json";
 
 import * as Airtable from "airtable";
+import { Shake } from "reshake";
 
 function EmojiMap() {
   const {
@@ -23,6 +24,10 @@ function EmojiMap() {
     setWindowDimensions,
     munis,
     setMunis,
+    mapShake,
+    setMapShake,
+    emojiShake,
+    setEmojiShake,
   } = useContext(ModalContext);
 
   const projection = d3
@@ -77,6 +82,7 @@ function EmojiMap() {
         ) {
           setMuni(d.target.__data__.properties.town);
           d3.select(this).attr("fill", "rgb(255,206,134)");
+          d3.select("#muni-pt-" + d.target.__data__.properties.town).classed("class-grow", true);
         }
       })
       .on("click", (d) => {
@@ -104,9 +110,10 @@ function EmojiMap() {
   };
 
   useEffect(() => {
+    setMapShake(false);
     renderMap();
     renderEmojis();
-  }, [toggleModal, muni, windowDimensions]);
+  }, [toggleModal, muni, windowDimensions, mapShake]);
 
   const Mapsize = styled.div`
     width: 100vw;
@@ -151,6 +158,62 @@ function EmojiMap() {
     text-align: left;
     word-break: break-all;
     text-wrap: nowrap;
+  `;
+
+  const BorderDiv = styled.div`
+    position: absolute;
+    pointer-events: auto;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+
+    --border-size: 1.5rem;
+    --border-size-wide: 2.25rem;
+    clip-path: polygon(
+      evenodd,
+      0 0,
+      100% 0,
+      100% 100%,
+      0% 100%,
+      0 0,
+      var(--border-size) var(--border-size-wide),
+      calc(100% - var(--border-size)) var(--border-size-wide),
+      calc(100% - var(--border-size)) calc(100% - var(--border-size)),
+      var(--border-size) calc(100% - var(--border-size)),
+      var(--border-size) var(--border-size-wide)
+    );
+
+    /* background: rgb(14, 21, 35); */
+    background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
+  `;
+
+  const TitleDiv = styled.div`
+    position: absolute;
+    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
+    top: 0rem;
+    width: 30rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
+  `;
+
+  const Titleh1 = styled.h3`
+    margin-bottom: 0.5rem;
+  `;
+
+  const Titleh3 = styled.h3`
+    position: absolute;
+    top: 0.15rem;
+    left: 10rem;
+    font-weight: bold;
+  `;
+
+  const LinkDiv = styled.div`
+    position: absolute;
+    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
+    top: 0rem;
+    width: 30rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
   `;
 
   const renderEmojis = () => {
@@ -216,16 +279,13 @@ function EmojiMap() {
       .attr("class", "muni-site")
       .style("pointer-events", "none")
       .text(function (d) {
-        console.log(mappedEmojis);
-        console.log(d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase());
-        console.log(mappedEmojis["Salem"]);
         if (
           mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
           undefined
         ) {
           return mappedEmojis[
             d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()
-          ][0].match(/\p{Emoji}+/gu)[0];
+          ][0].match(/\p{Emoji}+/gu);
         } else {
           return "❔";
         }
@@ -237,6 +297,21 @@ function EmojiMap() {
 
   return (
     <Mapsize>
+      <Shake h={8} v={22} r={0} dur={500} int={13.2} max={100} fixed={true} q={1} active={mapShake} freez={false}>
+        <svg
+          style={{ overflow: "visible", disply: "block", margin: "auto" }}
+          className={"emoji-map"}
+          preserveAspectRatio={"xMinYMin slice"}
+          viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
+        ></svg>
+      </Shake>
+
+      <BorderDiv />
+      <TitleDiv width={windowDimensions["width"]}>
+        <Titleh1>〽️🅰️🅿️🗜️</Titleh1>
+        <Titleh3>MUNI EMOJI</Titleh3>
+      </TitleDiv>
+
       {windowDimensions["width"] > 650 && (
         <InstructionsDiv>
           INSTRUCTIONS
@@ -247,13 +322,6 @@ function EmojiMap() {
           </InstructionsUl>
         </InstructionsDiv>
       )}
-
-      <svg
-        style={{ overflow: "visible", disply: "block", margin: "auto" }}
-        className={"emoji-map"}
-        preserveAspectRatio={"xMinYMin slice"}
-        viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
-      ></svg>
 
       <TooltipDiv width={windowDimensions["width"]}>
         <h6 style={{ marginBottom: 4 }}>MUNICIPALITY 👑:</h6>

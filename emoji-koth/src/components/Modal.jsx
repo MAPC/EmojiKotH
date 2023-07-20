@@ -21,6 +21,8 @@ function EmojiModal() {
     setMappedEmojis,
     windowDimensions,
     setWindowDimensions,
+    mapShake,
+    setMapShake,
   } = useContext(ModalContext);
   const [toggleEmoji, setToggleEmoji] = useState(true);
   const [currentEmoji, setCurrentEmoji] = useState(undefined);
@@ -172,7 +174,7 @@ function EmojiModal() {
                 value: 8,
               },
             },
-            value: ["🔥", "⭐", "🍀", "💥", "🦄", "⭐️", "💥", "🍵", "💸", "👑", "👑", "👑"],
+            value: [currentEmoji !== undefined ? currentEmoji["emoji"] : "👑"],
           },
         },
       },
@@ -192,11 +194,11 @@ function EmojiModal() {
 
     let upperName = [];
 
-    if (currentEmoji["names"].length > 1) {
+    if (currentEmoji !== undefined && currentEmoji["names"].length > 1) {
       currentEmoji["names"][1].split(" ").forEach((element) => {
         upperName.push(element[0].toUpperCase() + element.slice(1, element.length));
       });
-    } else if (currentEmoji["names"].length <= 1) {
+    } else if (currentEmoji !== undefined && currentEmoji["names"].length <= 1) {
       upperName.push(
         currentEmoji["names"][0][0].toUpperCase() + currentEmoji["names"][0].slice(1, currentEmoji["names"][0].length)
       );
@@ -207,7 +209,7 @@ function EmojiModal() {
         {
           fields: {
             Municipality: muni[0] + muni.slice(1, muni.length).toLowerCase(),
-            Emoji: currentEmoji["emoji"] + upperName.join(" "),
+            Emoji: currentEmoji !== undefined ? currentEmoji["emoji"] + upperName.join(" ") : "❔",
             Explanation: formDataObj.explanation,
           },
         },
@@ -229,6 +231,7 @@ function EmojiModal() {
         console.log(record.getId());
 
         loadParticles(configs);
+        setMapShake(true);
       });
     });
 
