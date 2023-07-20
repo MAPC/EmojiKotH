@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/EmojiKotH/static/css/main.ec7bd41b.css",
-    "main.js": "/EmojiKotH/static/js/main.836bf4b6.js",
+    "main.css": "/EmojiKotH/static/css/main.2dd48da1.css",
+    "main.js": "/EmojiKotH/static/js/main.75c71f78.js",
     "static/js/787.75373ca4.chunk.js": "/EmojiKotH/static/js/787.75373ca4.chunk.js",
     "index.html": "/EmojiKotH/index.html",
-    "main.ec7bd41b.css.map": "/EmojiKotH/static/css/main.ec7bd41b.css.map",
-    "main.836bf4b6.js.map": "/EmojiKotH/static/js/main.836bf4b6.js.map",
+    "main.2dd48da1.css.map": "/EmojiKotH/static/css/main.2dd48da1.css.map",
+    "main.75c71f78.js.map": "/EmojiKotH/static/js/main.75c71f78.js.map",
     "787.75373ca4.chunk.js.map": "/EmojiKotH/static/js/787.75373ca4.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ec7bd41b.css",
-    "static/js/main.836bf4b6.js"
+    "static/css/main.2dd48da1.css",
+    "static/js/main.75c71f78.js"
   ]
 }
