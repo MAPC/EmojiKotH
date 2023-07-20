@@ -319,7 +319,12 @@ function EmojiMap() {
       </TitleDiv>
 
       <LinkDiv>
-        <a href="https://airtable.com/shrOfU8zyqpWmiB2e/tbltaZ0zK1spJ8rxr">
+        <a
+          href="https://airtable.com/shrOfU8zyqpWmiB2e/tbltaZ0zK1spJ8rxr"
+          style={{ textDecoration: "none" }}
+          target="_blank"
+          rel="noreferrer"
+        >
           <img src={glossIcon} style={{ width: "1.75rem" }} />
         </a>
       </LinkDiv>
