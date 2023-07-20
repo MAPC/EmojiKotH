@@ -126,7 +126,6 @@ function App() {
     ])
   );
   const [mapShake, setMapShake] = useState(false);
-  const [emojiShake, setEmojiShake] = useState(false);
 
   useEffect(() => {
     function handleResize() {
@@ -154,8 +153,6 @@ function App() {
             setMunis,
             mapShake,
             setMapShake,
-            emojiShake,
-            setEmojiShake,
           }}
         >
           <EmojiModal />

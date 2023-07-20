@@ -26,8 +26,6 @@ function EmojiMap() {
     setMunis,
     mapShake,
     setMapShake,
-    emojiShake,
-    setEmojiShake,
   } = useContext(ModalContext);
 
   const projection = d3
@@ -74,6 +72,7 @@ function EmojiMap() {
       .attr("stroke", "#5064b7")
       .attr("d", path)
       .on("mouseover", function (d) {
+        setMapShake(false);
         if (
           munis.has(
             d.target.__data__.properties.town[0].toUpperCase() +
@@ -110,7 +109,6 @@ function EmojiMap() {
   };
 
   useEffect(() => {
-    setMapShake(false);
     renderMap();
     renderEmojis();
   }, [toggleModal, muni, windowDimensions, mapShake]);
