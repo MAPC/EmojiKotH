@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/EmojiKotH/static/css/main.2dd48da1.css",
-    "main.js": "/EmojiKotH/static/js/main.fd9c6dc5.js",
+    "main.js": "/EmojiKotH/static/js/main.bb9d3825.js",
     "static/js/787.75373ca4.chunk.js": "/EmojiKotH/static/js/787.75373ca4.chunk.js",
     "static/media/glossary-icon.svg": "/EmojiKotH/static/media/glossary-icon.9f0d957d7d12bbc9a9ca63961bf5399d.svg",
     "index.html": "/EmojiKotH/index.html",
     "main.2dd48da1.css.map": "/EmojiKotH/static/css/main.2dd48da1.css.map",
-    "main.fd9c6dc5.js.map": "/EmojiKotH/static/js/main.fd9c6dc5.js.map",
+    "main.bb9d3825.js.map": "/EmojiKotH/static/js/main.bb9d3825.js.map",
     "787.75373ca4.chunk.js.map": "/EmojiKotH/static/js/787.75373ca4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.2dd48da1.css",
-    "static/js/main.fd9c6dc5.js"
+    "static/js/main.bb9d3825.js"
   ]
 }
