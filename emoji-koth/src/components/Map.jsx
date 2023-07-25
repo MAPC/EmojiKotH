@@ -1,6 +1,6 @@
 import React from "react";
 import * as d3 from "d3";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import EmojiPicker from "emoji-picker-react";
 import Button from "react-bootstrap/Button";
 import styled from "styled-components";
@@ -12,6 +12,73 @@ import glossIcon from "../assets/glossary-icon.svg";
 
 import * as Airtable from "airtable";
 import { Shake } from "reshake";
+
+const Mapsize = styled.div`
+  width: 100vw;
+  height: 100vh;
+`;
+
+const InstructionsDiv = styled.div`
+  width: 18.25rem;
+  height: 14rem;
+  background-color: rgb(243 248 255);
+  position: absolute;
+  right: 3rem;
+  top: 3.75rem;
+  border-radius: 0.25rem;
+  color: rgb(39, 82, 162);
+  padding: 1.5rem 1.5rem;
+  font-weight: bold;
+`;
+
+const InstructionsUl = styled.ul`
+  padding: 1rem;
+`;
+
+const InstructionsLi = styled.li`
+  font-size: 16px;
+  margin-bottom: 0.75rem;
+  text-align: left;
+  list-style-type: "✔️";
+`;
+
+const BorderDiv = styled.div`
+  position: absolute;
+  pointer-events: auto;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+
+  --border-size: 1.5rem;
+  --border-size-wide: 2.25rem;
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0% 100%,
+    0 0,
+    var(--border-size) var(--border-size-wide),
+    calc(100% - var(--border-size)) var(--border-size-wide),
+    calc(100% - var(--border-size)) calc(100% - var(--border-size)),
+    var(--border-size) calc(100% - var(--border-size)),
+    var(--border-size) var(--border-size-wide)
+  );
+
+  /* background: rgb(14, 21, 35); */
+  background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
+`;
+
+const Titleh1 = styled.h3`
+  margin-bottom: 0.5rem;
+`;
+
+const Titleh3 = styled.h3`
+  position: absolute;
+  top: 0rem;
+  left: 10rem;
+  font-weight: bold;
+`;
 
 function EmojiMap() {
   const {
@@ -28,6 +95,8 @@ function EmojiMap() {
     mapShake,
     setMapShake,
   } = useContext(ModalContext);
+
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   const projection = d3
     .geoAlbers()
@@ -52,7 +121,8 @@ function EmojiMap() {
   const aspect = windowDimensions["width"] / windowDimensions["height"];
   const adjustedHeight = Math.ceil(windowDimensions["width"] / aspect);
 
-  const renderMap = () => {
+  const initMap = useCallback(() => {
+    console.log("initMap");
     const emojiMap = d3.select("svg");
     const path = d3.geoPath().projection(projection);
     // emojiMap.append("g").attr("class", "test");
@@ -107,41 +177,24 @@ function EmojiMap() {
           d3.select(this).attr("fill", "#bad7f7");
         }
       });
+      setMapInitialized(true);
+    
+  }, [munis, projection, setMuni, setToggleModal, setMapShake]);
+
+  const renderMap = () => {
+    console.log("renderMap");
   };
+
+  useEffect(() => {
+    if (!mapInitialized) {
+      initMap();
+    }
+  }, [mapInitialized, initMap]);
 
   useEffect(() => {
     renderMap();
     renderEmojis();
   }, [toggleModal, muni, windowDimensions, mapShake]);
-
-  const Mapsize = styled.div`
-    width: 100vw;
-    height: 100vh;
-  `;
-
-  const InstructionsDiv = styled.div`
-    width: 18.25rem;
-    height: 14rem;
-    background-color: rgb(243 248 255);
-    position: absolute;
-    right: 3rem;
-    top: 3.75rem;
-    border-radius: 0.25rem;
-    color: rgb(39, 82, 162);
-    padding: 1.5rem 1.5rem;
-    font-weight: bold;
-  `;
-
-  const InstructionsUl = styled.ul`
-    padding: 1rem;
-  `;
-
-  const InstructionsLi = styled.li`
-    font-size: 16px;
-    margin-bottom: 0.75rem;
-    text-align: left;
-    list-style-type: "✔️";
-  `;
 
   const TooltipDiv = styled.div`
     width: 18.25rem;
@@ -159,33 +212,6 @@ function EmojiMap() {
     text-wrap: nowrap;
   `;
 
-  const BorderDiv = styled.div`
-    position: absolute;
-    pointer-events: auto;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-
-    --border-size: 1.5rem;
-    --border-size-wide: 2.25rem;
-    clip-path: polygon(
-      evenodd,
-      0 0,
-      100% 0,
-      100% 100%,
-      0% 100%,
-      0 0,
-      var(--border-size) var(--border-size-wide),
-      calc(100% - var(--border-size)) var(--border-size-wide),
-      calc(100% - var(--border-size)) calc(100% - var(--border-size)),
-      var(--border-size) calc(100% - var(--border-size)),
-      var(--border-size) var(--border-size-wide)
-    );
-
-    /* background: rgb(14, 21, 35); */
-    background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
-  `;
-
   const TitleDiv = styled.div`
     position: absolute;
     left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
@@ -193,17 +219,6 @@ function EmojiMap() {
     width: 30rem;
     text-align: left;
     color: rgb(39, 82, 162);
-  `;
-
-  const Titleh1 = styled.h3`
-    margin-bottom: 0.5rem;
-  `;
-
-  const Titleh3 = styled.h3`
-    position: absolute;
-    top: 0rem;
-    left: 10rem;
-    font-weight: bold;
   `;
 
   const LinkDiv = styled.div`
