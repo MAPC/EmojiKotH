@@ -1,6 +1,6 @@
 import React from "react";
 import * as d3 from "d3";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import EmojiPicker from "emoji-picker-react";
 import Button from "react-bootstrap/Button";
 import styled from "styled-components";
@@ -12,6 +12,73 @@ import glossIcon from "../assets/glossary-icon.svg";
 
 import * as Airtable from "airtable";
 import { Shake } from "reshake";
+
+const Mapsize = styled.div`
+  width: 100vw;
+  height: 100vh;
+`;
+
+const InstructionsDiv = styled.div`
+  width: 18.25rem;
+  height: 14rem;
+  background-color: rgb(243 248 255);
+  position: absolute;
+  right: 3rem;
+  top: 3.75rem;
+  border-radius: 0.25rem;
+  color: rgb(39, 82, 162);
+  padding: 1.5rem 1.5rem;
+  font-weight: bold;
+`;
+
+const InstructionsUl = styled.ul`
+  padding: 1rem;
+`;
+
+const InstructionsLi = styled.li`
+  font-size: 16px;
+  margin-bottom: 0.75rem;
+  text-align: left;
+  list-style-type: "✔️";
+`;
+
+const BorderDiv = styled.div`
+  position: absolute;
+  pointer-events: auto;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+
+  --border-size: 1.5rem;
+  --border-size-wide: 2.25rem;
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0% 100%,
+    0 0,
+    var(--border-size) var(--border-size-wide),
+    calc(100% - var(--border-size)) var(--border-size-wide),
+    calc(100% - var(--border-size)) calc(100% - var(--border-size)),
+    var(--border-size) calc(100% - var(--border-size)),
+    var(--border-size) var(--border-size-wide)
+  );
+
+  /* background: rgb(14, 21, 35); */
+  background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
+`;
+
+const Titleh1 = styled.h3`
+  margin-bottom: 0.5rem;
+`;
+
+const Titleh3 = styled.h3`
+  position: absolute;
+  top: 0rem;
+  left: 10rem;
+  font-weight: bold;
+`;
 
 function EmojiMap() {
   const {
@@ -29,7 +96,10 @@ function EmojiMap() {
     setMapShake,
   } = useContext(ModalContext);
 
-  const projection = d3
+  const [mapInitialized, setMapInitialized] = useState(false);
+  const [maxID, setMaxID] = useState(-1);
+
+  let projection = d3
     .geoAlbers()
     .scale(
       windowDimensions["height"] > 1300 && windowDimensions["width"] > 1400
@@ -52,12 +122,14 @@ function EmojiMap() {
   const aspect = windowDimensions["width"] / windowDimensions["height"];
   const adjustedHeight = Math.ceil(windowDimensions["width"] / aspect);
 
-  const renderMap = () => {
-    const emojiMap = d3.select("svg");
+  const initMap = useCallback(() => {
+    console.log("initMap");
+    const emojiMap = d3.select("#muniMap-g");
     const path = d3.geoPath().projection(projection);
-    // emojiMap.append("g").attr("class", "test");
+
+    emojiMap.selectAll("path").remove();
+
     emojiMap
-      .append("g")
       .attr("class", "munis")
       .selectAll("path")
       .data(geoData["features"])
@@ -82,7 +154,6 @@ function EmojiMap() {
         ) {
           setMuni(d.target.__data__.properties.town);
           d3.select(this).attr("fill", "rgb(255,206,134)");
-          d3.select("#muni-pt-" + d.target.__data__.properties.town).classed("class-grow", true);
         }
       })
       .on("click", (d) => {
@@ -107,124 +178,65 @@ function EmojiMap() {
           d3.select(this).attr("fill", "#bad7f7");
         }
       });
+    setMapInitialized(true);
+  }, [munis, projection, setMuni, setToggleModal, setMapShake]);
+
+  const auth_token = {
+    apiKey: "patazxfLLjWIKl2eo.faf7336769cd4ffc8e99d49810efc4c461a68f3bbd62c51d2d56466fcd1dbd39",
   };
 
-  useEffect(() => {
-    renderMap();
-    renderEmojis();
-  }, [toggleModal, muni, windowDimensions, mapShake]);
+  var base = new Airtable(auth_token).base("app7invLG3BPCqc6o");
 
-  const Mapsize = styled.div`
-    width: 100vw;
-    height: 100vh;
-  `;
-
-  const InstructionsDiv = styled.div`
-    width: 18.25rem;
-    height: 14rem;
-    background-color: rgb(243 248 255);
-    position: absolute;
-    right: 3rem;
-    top: 3.75rem;
-    border-radius: 0.25rem;
-    color: rgb(39, 82, 162);
-    padding: 1.5rem 1.5rem;
-    font-weight: bold;
-  `;
-
-  const InstructionsUl = styled.ul`
-    padding: 1rem;
-  `;
-
-  const InstructionsLi = styled.li`
-    font-size: 16px;
-    margin-bottom: 0.75rem;
-    text-align: left;
-    list-style-type: "✔️";
-  `;
-
-  const TooltipDiv = styled.div`
-    width: 18.25rem;
-    height: 7rem;
-    background-color: rgb(243 248 255);
-    position: absolute;
-    bottom: 3rem;
-    border-radius: 0.25rem;
-    color: rgb(39, 82, 162);
-    right: ${(props) => (props.width < 505 ? "4.5rem" : "3rem")};
-    padding: 1.5rem 1.5rem;
-    font-weight: bold;
-    text-align: left;
-    word-break: break-all;
-    text-wrap: nowrap;
-  `;
-
-  const BorderDiv = styled.div`
-    position: absolute;
-    pointer-events: auto;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-
-    --border-size: 1.5rem;
-    --border-size-wide: 2.25rem;
-    clip-path: polygon(
-      evenodd,
-      0 0,
-      100% 0,
-      100% 100%,
-      0% 100%,
-      0 0,
-      var(--border-size) var(--border-size-wide),
-      calc(100% - var(--border-size)) var(--border-size-wide),
-      calc(100% - var(--border-size)) calc(100% - var(--border-size)),
-      var(--border-size) calc(100% - var(--border-size)),
-      var(--border-size) var(--border-size-wide)
-    );
-
-    /* background: rgb(14, 21, 35); */
-    background: linear-gradient(to bottom, rgb(243 248 255) 2.25rem, rgb(14, 21, 35) 2.25rem);
-  `;
-
-  const TitleDiv = styled.div`
-    position: absolute;
-    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
-    top: 0rem;
-    width: 30rem;
-    text-align: left;
-    color: rgb(39, 82, 162);
-  `;
-
-  const Titleh1 = styled.h3`
-    margin-bottom: 0.5rem;
-  `;
-
-  const Titleh3 = styled.h3`
-    position: absolute;
-    top: 0rem;
-    left: 10rem;
-    font-weight: bold;
-  `;
-
-  const LinkDiv = styled.div`
-    position: absolute;
-    right: ${(props) => (props.width < 505 ? "3.25rem" : "3rem")};
-    top: -0.25rem;
-    text-align: left;
-    color: rgb(39, 82, 162);
-  `;
-
-  const renderEmojis = () => {
-    const auth_token = {
-      apiKey: "patKlQHXCDpnAOJ2p.53d3f8636793a87b7967e0560734bc42213551cab6625fda7343e2c01545e177",
-    };
-
-    var base = new Airtable(auth_token).base("app7invLG3BPCqc6o");
+  const initEmoji = useCallback(() => {
+    const updatedMappedEmojis = { ...mappedEmojis };
+    let max = -1;
 
     base("Table 1")
       .select({
         // Selecting the first 3 records in Grid view:
         view: "Grid view",
+        sort: [{ field: "Autonumber", direction: "desc" }],
+      })
+      .eachPage(
+        function page(records, fetchNextPage) {
+          // This function (`page`) will get called for each page of records.
+          if (max < records[0].get("Autonumber")) {
+            max = records[0].get("Autonumber");
+          }
+
+          records.forEach(function (record) {
+            if (
+              updatedMappedEmojis[record.get("Municipality")] === undefined ||
+              updatedMappedEmojis[record.get("Municipality")][1] < record.get("Autonumber")
+            ) {
+              const id = record.get("Autonumber");
+              updatedMappedEmojis[record.get("Municipality")] = [record.get("Emoji"), id, record.get("Explanation")];
+            }
+          });
+
+          // To fetch the next page of records, call `fetchNextPage`.
+          // If there are more records, `page` will get called again.
+          // If there are no more records, `done` will get called.
+          fetchNextPage();
+        },
+        function done(err) {
+          if (err) {
+            console.error(err);
+            return;
+          } else {
+            setMaxID(max);
+            setMappedEmojis(updatedMappedEmojis);
+          }
+        }
+      );
+  }, [setMappedEmojis, mappedEmojis, setMaxID, base]);
+
+  const renderEmojis = useCallback(() => {
+    base("Table 1")
+      .select({
+        // Selecting the first 3 records in Grid view:
+        view: "Grid view",
+        filterByFormula: `IF({Autonumber} > ${maxID})`,
       })
       .eachPage(
         function page(records, fetchNextPage) {
@@ -256,9 +268,7 @@ function EmojiMap() {
         }
       );
 
-    setMappedEmojis(mappedEmojis);
-
-    const emojiMapPoints = d3.select("svg");
+    const emojiMapPoints = d3.select("#emojiMap-g");
 
     const filteredMunicipalities = pointData.features.filter((municipality) =>
       munis.has(
@@ -267,8 +277,10 @@ function EmojiMap() {
       )
     );
 
+    emojiMapPoints.attr("class", "emoji-map__sites").selectAll(".muni-site").remove();
+
+    console.log(mappedEmojis);
     emojiMapPoints
-      .append("g")
       .attr("class", "emoji-map__sites")
       .selectAll("circle")
       .data(filteredMunicipalities)
@@ -277,6 +289,14 @@ function EmojiMap() {
       .attr("class", "muni-site")
       .style("pointer-events", "none")
       .text(function (d) {
+        console.log(d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase());
+        console.log(
+          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()]
+        );
+        console.log(
+          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
+            undefined
+        );
         if (
           mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
           undefined
@@ -288,10 +308,59 @@ function EmojiMap() {
           return "❔";
         }
       })
+      .classed("class-grow", (d) => muni === d.properties.muni)
       .attr("id", (d) => `muni-pt-${d.properties.muni}`)
       .attr("x", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0])
       .attr("y", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1]);
-  };
+  }, [mappedEmojis, munis, base, maxID, muni, projection]);
+
+  useEffect(() => {
+    initMap();
+  }, [toggleModal, windowDimensions, mapShake, initMap]);
+
+  useEffect(() => {
+    if (!mapInitialized) {
+      initMap();
+      initEmoji();
+    }
+  }, [mapInitialized, initMap, initEmoji, renderEmojis]);
+
+  useEffect(() => {
+    renderEmojis();
+  }, [toggleModal, muni, windowDimensions, mapShake, mappedEmojis, renderEmojis]);
+
+  const TooltipDiv = styled.div`
+    width: 18.25rem;
+    height: 7rem;
+    background-color: rgb(243 248 255);
+    position: absolute;
+    bottom: 3rem;
+    border-radius: 0.25rem;
+    color: rgb(39, 82, 162);
+    right: ${(props) => (props.width < 505 ? "4.5rem" : "3rem")};
+    padding: 1.5rem 1.5rem;
+    font-weight: bold;
+    text-align: left;
+    word-break: break-all;
+    text-wrap: nowrap;
+  `;
+
+  const TitleDiv = styled.div`
+    position: absolute;
+    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
+    top: 0rem;
+    width: 30rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
+  `;
+
+  const LinkDiv = styled.div`
+    position: absolute;
+    right: ${(props) => (props.width < 505 ? "3.25rem" : "3rem")};
+    top: -0.25rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
+  `;
 
   return (
     <Mapsize>
@@ -301,7 +370,10 @@ function EmojiMap() {
           className={"emoji-map"}
           preserveAspectRatio={"xMinYMin slice"}
           viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
-        ></svg>
+        >
+          <g id={"muniMap-g"} />
+          <g id={"emojiMap-g"} />
+        </svg>
       </Shake>
 
       <BorderDiv />
