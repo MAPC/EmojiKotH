@@ -99,7 +99,7 @@ function EmojiMap() {
   const [mapInitialized, setMapInitialized] = useState(false);
   const [maxID, setMaxID] = useState(-1);
 
-  const projection = d3
+  let projection = d3
     .geoAlbers()
     .scale(
       windowDimensions["height"] > 1300 && windowDimensions["width"] > 1400
@@ -126,7 +126,9 @@ function EmojiMap() {
     console.log("initMap");
     const emojiMap = d3.select("#muniMap-g");
     const path = d3.geoPath().projection(projection);
-    // emojiMap.append("g").attr("class", "test");
+
+    emojiMap.selectAll("path").remove();
+
     emojiMap
       .attr("class", "munis")
       .selectAll("path")
@@ -221,64 +223,15 @@ function EmojiMap() {
           if (err) {
             console.error(err);
             return;
+          } else {
+            setMaxID(max);
+            setMappedEmojis(updatedMappedEmojis);
           }
         }
       );
+  }, [setMappedEmojis, mappedEmojis, setMaxID, base]);
 
-    setMaxID(max);
-    setMappedEmojis(updatedMappedEmojis);
-  }, [setMappedEmojis, mappedEmojis, maxID, setMaxID]);
-
-  const renderMap = () => {
-    console.log("renderMap");
-  };
-
-  useEffect(() => {
-    if (!mapInitialized) {
-      initMap();
-      initEmoji();
-    }
-  }, [mapInitialized, initMap, initEmoji]);
-
-  useEffect(() => {
-    // renderMap();
-    renderEmojis();
-  }, [toggleModal, muni, windowDimensions, mapShake]);
-
-  const TooltipDiv = styled.div`
-    width: 18.25rem;
-    height: 7rem;
-    background-color: rgb(243 248 255);
-    position: absolute;
-    bottom: 3rem;
-    border-radius: 0.25rem;
-    color: rgb(39, 82, 162);
-    right: ${(props) => (props.width < 505 ? "4.5rem" : "3rem")};
-    padding: 1.5rem 1.5rem;
-    font-weight: bold;
-    text-align: left;
-    word-break: break-all;
-    text-wrap: nowrap;
-  `;
-
-  const TitleDiv = styled.div`
-    position: absolute;
-    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
-    top: 0rem;
-    width: 30rem;
-    text-align: left;
-    color: rgb(39, 82, 162);
-  `;
-
-  const LinkDiv = styled.div`
-    position: absolute;
-    right: ${(props) => (props.width < 505 ? "3.25rem" : "3rem")};
-    top: -0.25rem;
-    text-align: left;
-    color: rgb(39, 82, 162);
-  `;
-
-  const renderEmojis = () => {
+  const renderEmojis = useCallback(() => {
     base("Table 1")
       .select({
         // Selecting the first 3 records in Grid view:
@@ -326,8 +279,7 @@ function EmojiMap() {
 
     emojiMapPoints.attr("class", "emoji-map__sites").selectAll(".muni-site").remove();
 
-    //
-    //       d3.select("#muni-pt-" + d.target.__data__.properties.town).classed("class-grow", true);
+    console.log(mappedEmojis);
     emojiMapPoints
       .attr("class", "emoji-map__sites")
       .selectAll("circle")
@@ -337,6 +289,14 @@ function EmojiMap() {
       .attr("class", "muni-site")
       .style("pointer-events", "none")
       .text(function (d) {
+        console.log(d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase());
+        console.log(
+          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()]
+        );
+        console.log(
+          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
+            undefined
+        );
         if (
           mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
           undefined
@@ -352,7 +312,55 @@ function EmojiMap() {
       .attr("id", (d) => `muni-pt-${d.properties.muni}`)
       .attr("x", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0])
       .attr("y", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1]);
-  };
+  }, [mappedEmojis, munis, base, maxID, muni, projection]);
+
+  useEffect(() => {
+    initMap();
+  }, [toggleModal, windowDimensions, mapShake, initMap]);
+
+  useEffect(() => {
+    if (!mapInitialized) {
+      initMap();
+      initEmoji();
+    }
+  }, [mapInitialized, initMap, initEmoji, renderEmojis]);
+
+  useEffect(() => {
+    renderEmojis();
+  }, [toggleModal, muni, windowDimensions, mapShake, mappedEmojis, renderEmojis]);
+
+  const TooltipDiv = styled.div`
+    width: 18.25rem;
+    height: 7rem;
+    background-color: rgb(243 248 255);
+    position: absolute;
+    bottom: 3rem;
+    border-radius: 0.25rem;
+    color: rgb(39, 82, 162);
+    right: ${(props) => (props.width < 505 ? "4.5rem" : "3rem")};
+    padding: 1.5rem 1.5rem;
+    font-weight: bold;
+    text-align: left;
+    word-break: break-all;
+    text-wrap: nowrap;
+  `;
+
+  const TitleDiv = styled.div`
+    position: absolute;
+    left: ${(props) => (props.width < 505 ? "3.25rem" : "1.5rem")};
+    top: 0rem;
+    width: 30rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
+  `;
+
+  const LinkDiv = styled.div`
+    position: absolute;
+    right: ${(props) => (props.width < 505 ? "3.25rem" : "3rem")};
+    top: -0.25rem;
+    text-align: left;
+    color: rgb(39, 82, 162);
+  `;
 
   return (
     <Mapsize>

@@ -280,11 +280,7 @@ function EmojiModal() {
             <Form.Label className="mb-1 text-start modal-form-label">Emoji: </Form.Label>
             <Form.Control
               type="text"
-              placeholder={
-                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
-                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
-                  : "❔"
-              }
+              placeholder={"Choose an emoji!"}
               className="mb-3"
               name="emoji"
               defaultValue={
@@ -292,27 +288,34 @@ function EmojiModal() {
                   ? currentEmoji["emoji"]
                   : mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
                   ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
-                  : "❔"
+                  : null
               }
+              readOnly={true}
             />
             <EmojiButton onClick={handleToggleEmoji} type="button">
               {toggleEmoji ? "close emoji picker" : "open emoji picker"}
             </EmojiButton>
             {toggleEmoji && (
-              <EmojiPickerAbs onEmojiClick={handleEmoji} width={"100%"} height={"25rem"} lazyLoad={true} />
+              <EmojiPickerAbs
+                onEmojiClick={handleEmoji}
+                width={"100%"}
+                height={"25rem"}
+                lazyLoad={true}
+                lazyLoadEmojis={true}
+              />
             )}
             <br /> <br />
             <Form.Label className="mb-1 text-start modal-form-label">Explanation:</Form.Label>
             <Form.Control
               type="text"
-              placeholder={
-                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
-                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
-                  : "Explain why you chose that emoji"
-              }
+              placeholder={"Explain why you chose that emoji"}
               className="mb-3"
               name="explanation"
-              defaultValue={"N/A"}
+              defaultValue={
+                mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                  ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
+                  : null
+              }
             />
           </Form.Group>
           <Button
