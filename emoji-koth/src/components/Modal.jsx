@@ -259,8 +259,6 @@ function EmojiModal() {
     width: 100vw;
     /* margin-left: 2rem; */
   `;
-  console.log(currentEmoji);
-  console.log(mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()]);
   return (
     <EmojiModalDiv
       show={toggleModal}

@@ -123,7 +123,6 @@ function EmojiMap() {
   const adjustedHeight = Math.ceil(windowDimensions["width"] / aspect);
 
   const initMap = useCallback(() => {
-    console.log("initMap");
     const emojiMap = d3.select("#muniMap-g");
     const path = d3.geoPath().projection(projection);
 
@@ -279,7 +278,6 @@ function EmojiMap() {
 
     emojiMapPoints.attr("class", "emoji-map__sites").selectAll(".muni-site").remove();
 
-    console.log(mappedEmojis);
     emojiMapPoints
       .attr("class", "emoji-map__sites")
       .selectAll("circle")
@@ -289,14 +287,6 @@ function EmojiMap() {
       .attr("class", "muni-site")
       .style("pointer-events", "none")
       .text(function (d) {
-        console.log(d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase());
-        console.log(
-          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()]
-        );
-        console.log(
-          mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
-            undefined
-        );
         if (
           mappedEmojis[d.properties.muni[0] + d.properties.muni.slice(1, d.properties.muni.length).toLowerCase()] !==
           undefined
