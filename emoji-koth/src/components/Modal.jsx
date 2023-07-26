@@ -209,7 +209,12 @@ function EmojiModal() {
         {
           fields: {
             Municipality: muni[0] + muni.slice(1, muni.length).toLowerCase(),
-            Emoji: currentEmoji !== undefined ? currentEmoji["emoji"] + upperName.join(" ") : "❔",
+            Emoji:
+              currentEmoji !== undefined
+                ? currentEmoji["emoji"]
+                : mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
+                ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][0].match(/\p{Emoji}+/gu)[0]
+                : "❔",
             Explanation: formDataObj.explanation,
           },
         },
@@ -254,7 +259,8 @@ function EmojiModal() {
     width: 100vw;
     /* margin-left: 2rem; */
   `;
-
+  console.log(currentEmoji);
+  console.log(mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()]);
   return (
     <EmojiModalDiv
       show={toggleModal}
@@ -290,7 +296,7 @@ function EmojiModal() {
               }
             />
             <EmojiButton onClick={handleToggleEmoji} type="button">
-              Choose an Emoji
+              {toggleEmoji ? "close emoji picker" : "open emoji picker"}
             </EmojiButton>
             {toggleEmoji && (
               <EmojiPickerAbs onEmojiClick={handleEmoji} width={"100%"} height={"25rem"} lazyLoad={true} />
@@ -299,14 +305,14 @@ function EmojiModal() {
             <Form.Label className="mb-1 text-start modal-form-label">Explanation:</Form.Label>
             <Form.Control
               type="text"
-              placeholder={"Explain why you chose that emoji"}
-              className="mb-3"
-              name="explanation"
-              defaultValue={
+              placeholder={
                 mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()] !== undefined
                   ? mappedEmojis[muni[0] + muni.slice(1, muni.length).toLowerCase()][2]
-                  : "N/A"
+                  : "Explain why you chose that emoji"
               }
+              className="mb-3"
+              name="explanation"
+              defaultValue={"N/A"}
             />
           </Form.Group>
           <Button

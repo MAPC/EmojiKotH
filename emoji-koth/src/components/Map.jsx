@@ -97,6 +97,7 @@ function EmojiMap() {
   } = useContext(ModalContext);
 
   const [mapInitialized, setMapInitialized] = useState(false);
+  const [maxID, setMaxID] = useState(-1);
 
   const projection = d3
     .geoAlbers()
@@ -123,11 +124,10 @@ function EmojiMap() {
 
   const initMap = useCallback(() => {
     console.log("initMap");
-    const emojiMap = d3.select("svg");
+    const emojiMap = d3.select("#muniMap-g");
     const path = d3.geoPath().projection(projection);
     // emojiMap.append("g").attr("class", "test");
     emojiMap
-      .append("g")
       .attr("class", "munis")
       .selectAll("path")
       .data(geoData["features"])
@@ -152,7 +152,6 @@ function EmojiMap() {
         ) {
           setMuni(d.target.__data__.properties.town);
           d3.select(this).attr("fill", "rgb(255,206,134)");
-          d3.select("#muni-pt-" + d.target.__data__.properties.town).classed("class-grow", true);
         }
       })
       .on("click", (d) => {
@@ -177,9 +176,58 @@ function EmojiMap() {
           d3.select(this).attr("fill", "#bad7f7");
         }
       });
-      setMapInitialized(true);
-    
+    setMapInitialized(true);
   }, [munis, projection, setMuni, setToggleModal, setMapShake]);
+
+  const auth_token = {
+    apiKey: "patazxfLLjWIKl2eo.faf7336769cd4ffc8e99d49810efc4c461a68f3bbd62c51d2d56466fcd1dbd39",
+  };
+
+  var base = new Airtable(auth_token).base("app7invLG3BPCqc6o");
+
+  const initEmoji = useCallback(() => {
+    const updatedMappedEmojis = { ...mappedEmojis };
+    let max = -1;
+
+    base("Table 1")
+      .select({
+        // Selecting the first 3 records in Grid view:
+        view: "Grid view",
+        sort: [{ field: "Autonumber", direction: "desc" }],
+      })
+      .eachPage(
+        function page(records, fetchNextPage) {
+          // This function (`page`) will get called for each page of records.
+          if (max < records[0].get("Autonumber")) {
+            max = records[0].get("Autonumber");
+          }
+
+          records.forEach(function (record) {
+            if (
+              updatedMappedEmojis[record.get("Municipality")] === undefined ||
+              updatedMappedEmojis[record.get("Municipality")][1] < record.get("Autonumber")
+            ) {
+              const id = record.get("Autonumber");
+              updatedMappedEmojis[record.get("Municipality")] = [record.get("Emoji"), id, record.get("Explanation")];
+            }
+          });
+
+          // To fetch the next page of records, call `fetchNextPage`.
+          // If there are more records, `page` will get called again.
+          // If there are no more records, `done` will get called.
+          fetchNextPage();
+        },
+        function done(err) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+        }
+      );
+
+    setMaxID(max);
+    setMappedEmojis(updatedMappedEmojis);
+  }, [setMappedEmojis, mappedEmojis, maxID, setMaxID]);
 
   const renderMap = () => {
     console.log("renderMap");
@@ -188,11 +236,12 @@ function EmojiMap() {
   useEffect(() => {
     if (!mapInitialized) {
       initMap();
+      initEmoji();
     }
-  }, [mapInitialized, initMap]);
+  }, [mapInitialized, initMap, initEmoji]);
 
   useEffect(() => {
-    renderMap();
+    // renderMap();
     renderEmojis();
   }, [toggleModal, muni, windowDimensions, mapShake]);
 
@@ -230,16 +279,11 @@ function EmojiMap() {
   `;
 
   const renderEmojis = () => {
-    const auth_token = {
-      apiKey: "patKlQHXCDpnAOJ2p.53d3f8636793a87b7967e0560734bc42213551cab6625fda7343e2c01545e177",
-    };
-
-    var base = new Airtable(auth_token).base("app7invLG3BPCqc6o");
-
     base("Table 1")
       .select({
         // Selecting the first 3 records in Grid view:
         view: "Grid view",
+        filterByFormula: `IF({Autonumber} > ${maxID})`,
       })
       .eachPage(
         function page(records, fetchNextPage) {
@@ -271,9 +315,7 @@ function EmojiMap() {
         }
       );
 
-    setMappedEmojis(mappedEmojis);
-
-    const emojiMapPoints = d3.select("svg");
+    const emojiMapPoints = d3.select("#emojiMap-g");
 
     const filteredMunicipalities = pointData.features.filter((municipality) =>
       munis.has(
@@ -282,8 +324,11 @@ function EmojiMap() {
       )
     );
 
+    emojiMapPoints.attr("class", "emoji-map__sites").selectAll(".muni-site").remove();
+
+    //
+    //       d3.select("#muni-pt-" + d.target.__data__.properties.town).classed("class-grow", true);
     emojiMapPoints
-      .append("g")
       .attr("class", "emoji-map__sites")
       .selectAll("circle")
       .data(filteredMunicipalities)
@@ -303,6 +348,7 @@ function EmojiMap() {
           return "❔";
         }
       })
+      .classed("class-grow", (d) => muni === d.properties.muni)
       .attr("id", (d) => `muni-pt-${d.properties.muni}`)
       .attr("x", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[0])
       .attr("y", (d) => projection([d.geometry.coordinates[0], d.geometry.coordinates[1]])[1]);
@@ -316,7 +362,10 @@ function EmojiMap() {
           className={"emoji-map"}
           preserveAspectRatio={"xMinYMin slice"}
           viewBox={`0 0 ${windowDimensions["width"]} ${adjustedHeight}`}
-        ></svg>
+        >
+          <g id={"muniMap-g"} />
+          <g id={"emojiMap-g"} />
+        </svg>
       </Shake>
 
       <BorderDiv />
