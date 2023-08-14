@@ -4,7 +4,6 @@ import EmojiPicker from "emoji-picker-react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-import axios from "axios";
 import styled from "styled-components";
 import { ModalContext } from "../App";
 import * as Airtable from "airtable";
@@ -221,6 +220,7 @@ function EmojiModal() {
       ],
     };
 
+    // not best practice! but low stakes so public secret key for this base
     const auth = {
       apiKey: "patKlQHXCDpnAOJ2p.53d3f8636793a87b7967e0560734bc42213551cab6625fda7343e2c01545e177",
     };

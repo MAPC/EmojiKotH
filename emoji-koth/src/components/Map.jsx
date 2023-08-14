@@ -122,6 +122,7 @@ function EmojiMap() {
   const aspect = windowDimensions["width"] / windowDimensions["height"];
   const adjustedHeight = Math.ceil(windowDimensions["width"] / aspect);
 
+  // first render of the map
   const initMap = useCallback(() => {
     const emojiMap = d3.select("#muniMap-g");
     const path = d3.geoPath().projection(projection);
@@ -186,6 +187,7 @@ function EmojiMap() {
 
   var base = new Airtable(auth_token).base("app7invLG3BPCqc6o");
 
+  // first render of emojis, includes getting all data for the first time
   const initEmoji = useCallback(() => {
     const updatedMappedEmojis = { ...mappedEmojis };
     let max = -1;
@@ -269,6 +271,7 @@ function EmojiMap() {
 
     const emojiMapPoints = d3.select("#emojiMap-g");
 
+    // filters out municipalities geojson data to only those within the MAPC region
     const filteredMunicipalities = pointData.features.filter((municipality) =>
       munis.has(
         municipality.properties.muni[0] +
