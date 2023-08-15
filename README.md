@@ -6,9 +6,9 @@ Muni Emoji is a creative coding project developed at MAPC for internal community
 
 ### See more here:
 
-Medium Article: https://medium.com/dataservicesblog/introducing-mapc-muni-emoji-map-%EF%B8%8F-26ba02cdfa92
-Web App: https://mapc.github.io/EmojiKotH/
-Airtable Base: https://airtable.com/app7invLG3BPCqc6o/shrOfU8zyqpWmiB2e/tbltaZ0zK1spJ8rxr
+Medium Article: https://medium.com/dataservicesblog/introducing-mapc-muni-emoji-map-%EF%B8%8F-26ba02cdfa92 <br>
+Web App: https://mapc.github.io/EmojiKotH/ <br>
+Airtable Base: https://airtable.com/app7invLG3BPCqc6o/shrOfU8zyqpWmiB2e/tbltaZ0zK1spJ8rxr <br>
 
 ## Technologies
 
